@@ -8,11 +8,13 @@ class NeuralNetwork
 {
 private:
 
+    
+
+public:
+
     Layer inputLayer;
     std::vector<Layer> hiddenLayers;
     Layer outputLayer;
-
-public:
 
     NeuralNetwork() = delete;
     NeuralNetwork(int inputLayerSize, int outputLayerSize);
@@ -20,9 +22,13 @@ public:
 
     void addHiddenLayer(int layerSize);
 
+    void printToConsole() const;
+
     void setInputNeurons(const std::vector<double>& values);
     void update();
     std::vector<double> getOutputValues();
+
+    void train(std::vector<double> desiredValues);
 };
 
 #endif

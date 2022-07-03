@@ -2,6 +2,7 @@
 #define NEURON_H
 
 #include <vector>
+#include <random>
 #include "Layer.h"
 
 class Layer;
@@ -9,21 +10,37 @@ class Layer;
 class Neuron
 {
 private:
-    double sigmoid(double input);
+    //Weight Randomization members
+    static std::random_device rd;
+    static std::seed_seq seed;
+    static std::mt19937 mt;
+    static std::uniform_real_distribution<> randomGenerator;
+
+    //Math helper methods
+    double sigmoid(double input) const;
+    double sigmoidPrime(double input) const;
 public:
+    //Initialization/destruction methods
     Neuron();
-    Neuron(const Layer* prevLayer);
+    Neuron(int numberOfWeights);
     Neuron(const Neuron& orig);
     ~Neuron();
+    void reinitializeWeights(int weightCount);
 
-    void reassignPreviousLayer(const Layer* newLayer);
-
-    void update();
-
+    //Member variables
     bool isInputNeuron;
-    const Layer* previousLayer;
     std::vector<double> inboundWeights;
     double neuronValue;
+
+    //General Use methods
+    void update(const Layer& previousLayer);
+    void printToConsole() const;
+
+    //Learning methods
+    double findCostOfWeight(const Layer& previousLayer ,int weightIndex, double desiredValue) const;
+    double findCostOfPrevNeuron(const Layer& previousLayer, int neuronIndex, double desiredValue) const;
+    void adjustInboundWeights(const Layer& previousLayer, double desiredNeuronValue);
+    double findError(double desiredValue) const;
 };
 
 #endif
