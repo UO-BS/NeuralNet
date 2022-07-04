@@ -9,15 +9,22 @@ std::mt19937 Neuron::mt{seed};
 std::uniform_real_distribution<double> Neuron::randomGenerator(-1.0,1.0);
 
 Neuron::Neuron() : isInputNeuron{true}, inboundWeights(0, 0), neuronValue{0}{}
-Neuron::Neuron(int numberOfWeights) : isInputNeuron{(numberOfWeights==0)?true : false}, inboundWeights(numberOfWeights, randomGenerator(mt)), neuronValue{0.5}{}
+Neuron::Neuron(int numberOfWeights) : isInputNeuron{(numberOfWeights==0)?true : false}, inboundWeights(numberOfWeights), neuronValue{0.5}{
+    for (int i=0;i<inboundWeights.size();i++) {
+        inboundWeights[i] = randomGenerator(mt);
+    }
+}
 Neuron::Neuron(const Neuron& orig) : isInputNeuron{orig.isInputNeuron}, inboundWeights{orig.inboundWeights}, neuronValue{orig.neuronValue}{}
 Neuron::~Neuron(){}
 
 void Neuron::reinitializeWeights(int weightCount)
 {
-    inboundWeights = std::vector<double> (weightCount,randomGenerator(mt));
+    inboundWeights = std::vector<double> (weightCount);
     if (weightCount>0) {
         isInputNeuron=false;
+    }
+    for (int i=0;i<inboundWeights.size();i++) {
+        inboundWeights[i] = randomGenerator(mt);
     }
 }
 
@@ -87,9 +94,17 @@ double Neuron::sigmoidPrime(double input) const
 }
 
 void Neuron::adjustInboundWeights(const Layer& previousLayer, double desiredNeuronValue) {
+    std::vector<double> neededWeightChanges(inboundWeights.size());
+    //Changing a weight will change the cost function for other weights. The calculation must be seperated from the changes
+    
     for (int j=0;j<inboundWeights.size();j++) {
-        inboundWeights[j] -= findCostOfWeight(previousLayer, j,desiredNeuronValue)*0.5; 
+        neededWeightChanges[j] = findCostOfWeight(previousLayer, j,desiredNeuronValue)*1.0; 
     }
+    
+    for (int j=0;j<inboundWeights.size();j++) {
+        inboundWeights[j] -= neededWeightChanges[j]; 
+    }
+
 }
 
 double Neuron::findError(double desiredValue) const 

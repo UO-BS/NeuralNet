@@ -10,10 +10,6 @@ class Layer
 {
 private:
 
-    //Helper sigmoid function
-    double sigmoidPrime(double input) const;
-    double sigmoid(double input) const;
-
 public:
     Layer() = delete;
     Layer(int layerSize); //For input layer

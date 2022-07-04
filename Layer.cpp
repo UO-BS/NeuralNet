@@ -36,17 +36,6 @@ void Layer::reassignNeuronsPreviousLayer(const Layer& previousLayer)
 
 int Layer::size() const {return containedNeurons.size();}
 
-double Layer::sigmoidPrime(double input) const
-{
-    double sigmoidTemp = sigmoid(input);
-    return (sigmoidTemp*(1-sigmoidTemp));
-}
-
-double Layer::sigmoid(double input) const
-{
-    return (1.0 / (1.0 + exp(-input)));
-}
-
 void Layer::printToConsole() const
 {
     std::cout << "Layer:\n";
