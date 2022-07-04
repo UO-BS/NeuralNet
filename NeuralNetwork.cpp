@@ -68,39 +68,46 @@ void NeuralNetwork::train(std::vector<double> desiredValues)
 {
     //POTENTIAL PROBLEMS: update() or no update() between weight changes?
 
+    std::vector<double> derivativeOfCostRespectOutputNeurons(outputLayer.size());
+    for (int i=0;i<outputLayer.size();i++) {
+        derivativeOfCostRespectOutputNeurons[i] = 2*(desiredValues[i] - outputLayer.containedNeurons[i].neuronValue);
+    }
+
     //Adjust outputLayer weights
     if (hiddenLayers.size()==0) {
-        outputLayer.adjustContainedNeuronWeights(inputLayer, desiredValues);
+        outputLayer.adjustContainedNeuronWeights(inputLayer, derivativeOfCostRespectOutputNeurons);
         update();
         return;    //If there are no hidden Layers, then we are only able to change the outputlayer weights
     }
-    outputLayer.adjustContainedNeuronWeights(hiddenLayers[hiddenLayers.size()-1], desiredValues);
+    outputLayer.adjustContainedNeuronWeights(hiddenLayers[hiddenLayers.size()-1], derivativeOfCostRespectOutputNeurons);
 
     //Now working on last Hidden layer weights
-    std::vector<double> neededNeuronChanges(hiddenLayers[hiddenLayers.size()-1].size()); //Holds the desired Values of this last hidden layer
+    std::vector<double> derivativeOfCostRespectNeuron(hiddenLayers[hiddenLayers.size()-1].size());
     for (int i=0;i<hiddenLayers[hiddenLayers.size()-1].size();i++) {
-        neededNeuronChanges[i] = hiddenLayers[hiddenLayers.size()-1].containedNeurons[i].neuronValue + outputLayer.findCostOfPrevNeuronForLayer(hiddenLayers[hiddenLayers.size()-1], i, desiredValues);
+        derivativeOfCostRespectNeuron[i] = outputLayer.findCostOfPrevNeuronForLayer(hiddenLayers[hiddenLayers.size()-1],i,derivativeOfCostRespectOutputNeurons);
     }
-    if (hiddenLayers.size()==1) {
-        hiddenLayers[hiddenLayers.size()-1].adjustContainedNeuronWeights(inputLayer, neededNeuronChanges);
+    if (hiddenLayers.size()-1 == 0) {
+        hiddenLayers[hiddenLayers.size()-1].adjustContainedNeuronWeights(inputLayer,derivativeOfCostRespectNeuron);
         update();
         return;
     } else {
-        hiddenLayers[hiddenLayers.size()-1].adjustContainedNeuronWeights(hiddenLayers[hiddenLayers.size()-2], neededNeuronChanges);
+        hiddenLayers[hiddenLayers.size()-1].adjustContainedNeuronWeights(hiddenLayers[hiddenLayers.size()-2],derivativeOfCostRespectNeuron);
     }
-    
+
     //Now Working on each hidden layer (other than the last)
+    std::vector<double> prevDerivativeOfCostRespectNeuron = derivativeOfCostRespectNeuron;
     for (int i=hiddenLayers.size()-1;i>=0;i--) {
-        std::vector<double> neededNeuronChanges(hiddenLayers[i-1].size());
+        derivativeOfCostRespectNeuron.resize(hiddenLayers[i-1].size());
         for (int j=0;j<hiddenLayers[i-1].size();j++) {
-            neededNeuronChanges[j] = hiddenLayers[i-1].containedNeurons[j].neuronValue + hiddenLayers[i].findCostOfPrevNeuronForLayer(hiddenLayers[i-1],j,desiredValues);
+            derivativeOfCostRespectNeuron[j] = hiddenLayers[i].findCostOfPrevNeuronForLayer(hiddenLayers[i-1],j,prevDerivativeOfCostRespectNeuron);
         }
         if (hiddenLayers.size()==i+1) {
-            hiddenLayers[i-1].adjustContainedNeuronWeights(inputLayer,neededNeuronChanges);
+            hiddenLayers[i-1].adjustContainedNeuronWeights(inputLayer,derivativeOfCostRespectNeuron);
             update();
             return;
         } else {
-            hiddenLayers[i-1].adjustContainedNeuronWeights(hiddenLayers[i-2],neededNeuronChanges);
+            hiddenLayers[i-1].adjustContainedNeuronWeights(hiddenLayers[i-2],derivativeOfCostRespectNeuron);
         }
+        std::vector<double> prevDerivativeOfCostRespectNeuron = derivativeOfCostRespectNeuron;
     }
 }

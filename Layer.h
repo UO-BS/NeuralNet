@@ -26,9 +26,9 @@ public:
     int size() const;
     void printToConsole() const;
 
-    double findCostOfPrevNeuronForLayer(const Layer& previousLayer, int neuronIndex, std::vector<double> desiredValues) const;
+    double findCostOfPrevNeuronForLayer(const Layer& previousLayer, int neuronIndex, std::vector<double> derivativeOfCostRespectNeurons) const;
 
-    void adjustContainedNeuronWeights(const Layer& previousLayer, std::vector<double> desiredValues);
+    void adjustContainedNeuronWeights(const Layer& previousLayer, std::vector<double> derivativeOfCostRespectNeurons);
 };
 
 #endif
