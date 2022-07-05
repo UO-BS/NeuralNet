@@ -9,12 +9,12 @@
 int main() {
 
     NeuralNetwork newNet{2, 1};
-    //newNet.addHiddenLayer(1);
+    //newNet.addHiddenLayer(2);
     newNet.update();
     std::cout << "----------------------------------------------------------------------------";
     newNet.printToConsole();
 
-    //Testing y=2x 
+    //Testing
     std::default_random_engine generator;
     std::uniform_real_distribution<double> distribution(-1,1);
     for (int i=0;i<500;i++) {
@@ -28,20 +28,16 @@ int main() {
         //if (newNet.outputLayer.containedNeurons[0].findError((x*2 > y)?1.0:0.0) > 0.5) {
             //std::cout << newNet.outputLayer.containedNeurons[0].findError((x*2 > y)?1.0:0.0) << " " << i <<"\n";
         //}
-        if (i%100 == 0) {
-            std::cout << "======================================================================";
-            newNet.printToConsole();
-        }
     }
 
-    std::vector<double> temp{5,9};
+    std::vector<double> temp{3,5};
     newNet.setInputNeurons(temp);
 
     newNet.update();
     std::cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
     newNet.printToConsole();
 
-    temp[1] = 11;
+    temp[1] = 7;
     newNet.setInputNeurons(temp);
 
     newNet.update();

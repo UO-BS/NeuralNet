@@ -16,6 +16,8 @@ private:
     static std::mt19937 mt;
     static std::uniform_real_distribution<> randomGenerator;
 
+    static constexpr double bias = 1.0;
+
     //Math helper methods
     double sigmoid(double input) const;
     double sigmoidPrime(double input) const;
