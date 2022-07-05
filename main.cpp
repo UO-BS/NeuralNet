@@ -9,7 +9,7 @@
 int main() {
 
     NeuralNetwork newNet{2, 1};
-    //newNet.addHiddenLayer(1);
+    newNet.addHiddenLayer(4);
     newNet.update();
     std::cout << "----------------------------------------------------------------------------";
     newNet.printToConsole();
@@ -17,21 +17,21 @@ int main() {
     //Testing y=2x 
     std::default_random_engine generator;
     std::uniform_real_distribution<double> distribution(-1,1);
-    for (int i=0;i<500;i++) {
+    for (int i=0;i<5000;i++) {
         double x = distribution(generator);
         double y = distribution(generator);
         std::vector<double> temp{x,y};
         newNet.setInputNeurons(temp);
         newNet.update();
         newNet.train(std::vector<double> (1,(x*2 > y)?1.0:0.0));
-        newNet.update();
+        //newNet.update();
         //if (newNet.outputLayer.containedNeurons[0].findError((x*2 > y)?1.0:0.0) > 0.5) {
             //std::cout << newNet.outputLayer.containedNeurons[0].findError((x*2 > y)?1.0:0.0) << " " << i <<"\n";
         //}
-        if (i%100 == 0) {
-            std::cout << "======================================================================";
-            newNet.printToConsole();
-        }
+        //if (i%100==0) {
+            //std::cout << "======================================================================";
+            //newNet.printToConsole();
+        //}
     }
 
     std::vector<double> temp{5,9};
