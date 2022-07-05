@@ -62,18 +62,22 @@ void Neuron::printToConsole() const
     
 }
 
-double Neuron::findCostOfWeight(const Layer& previousLayer, int weightIndex, double desiredValue) const
+double Neuron::findCostOfWeight(const Layer& previousLayer, int weightIndex, double derivativeOfCostRespectNeuron) const
 {
     //derivative of Cost Function of 1 output with respect to 1 of the Weights
     //2(desiredvalue - currentNeuronValue) * sigmoid'(lastNeuronValueWeightedUnsigmoid) * lastNeuronValue
+<<<<<<< HEAD
     double dCostdSigmoidedValue = 2*(desiredValue - neuronValue);
     
+=======
+>>>>>>> 1ea2e0210018c9e3651273570bfb3ed8ed1b7edf
     double weightedValue{};
     for (int i=0;i<previousLayer.size();i++) {
         weightedValue += previousLayer.containedNeurons[i].neuronValue*inboundWeights[i];
     }
     weightedValue += bias*inboundWeights[inboundWeights.size()-1];
     double dSigmoiddLastWeightedValue = -sigmoidPrime(weightedValue);
+<<<<<<< HEAD
     
     double dLastWeightedValuedLastValue{};
     if (weightIndex == inboundWeights.size()-1) {
@@ -82,19 +86,23 @@ double Neuron::findCostOfWeight(const Layer& previousLayer, int weightIndex, dou
         dLastWeightedValuedLastValue = bias;
     }
     return  dCostdSigmoidedValue * dSigmoiddLastWeightedValue * dLastWeightedValuedLastValue;
+=======
+    double dLastWeightedValuedLastValue = previousLayer.containedNeurons[weightIndex].neuronValue;
+    return  derivativeOfCostRespectNeuron * dSigmoiddLastWeightedValue * dLastWeightedValuedLastValue;
+>>>>>>> 1ea2e0210018c9e3651273570bfb3ed8ed1b7edf
 }
-double Neuron::findCostOfPrevNeuron(const Layer& previousLayer, int neuronIndex, double desiredValue) const
+
+double Neuron::findCostOfPrevNeuron(const Layer& previousLayer, int neuronIndex, double derivativeOfCostRespectNeuron) const
 {
     //derivative of Cost Function of 1 output with respect to 1 of the Neurons (previous node)
     //2(desiredvalue - currentNeuronValue) * sigmoid'(lastNeuronValueWeightedUnsigmoid) * WeightLinkingTheNodes
-    double dCostdSigmoidedValue = 2*(desiredValue - neuronValue);
     double weightedValue{};
     for (int i=0;i<previousLayer.size();i++) {
         weightedValue += previousLayer.containedNeurons[i].neuronValue*inboundWeights[i];
     }
     double dSigmoiddLastWeightedValue = -sigmoidPrime(weightedValue);
     double dLastWeightedValuedLastWeight = inboundWeights[neuronIndex];
-    return  dCostdSigmoidedValue * dSigmoiddLastWeightedValue * dLastWeightedValuedLastWeight;
+    return derivativeOfCostRespectNeuron * dSigmoiddLastWeightedValue * dLastWeightedValuedLastWeight;
 }
 
 double Neuron::sigmoidPrime(double input) const
@@ -103,12 +111,13 @@ double Neuron::sigmoidPrime(double input) const
     return (sigmoidTemp*(1-sigmoidTemp));
 }
 
-void Neuron::adjustInboundWeights(const Layer& previousLayer, double desiredNeuronValue) {
+
+void Neuron::adjustInboundWeights(const Layer& previousLayer, double derivativeOfCostRespectNeuron) {
     std::vector<double> neededWeightChanges(inboundWeights.size());
     //Changing a weight will change the cost function for other weights. The calculation must be seperated from the changes
     
     for (int j=0;j<inboundWeights.size();j++) {
-        neededWeightChanges[j] = findCostOfWeight(previousLayer, j,desiredNeuronValue)*1.0; 
+        neededWeightChanges[j] = findCostOfWeight(previousLayer, j, derivativeOfCostRespectNeuron)*1.0; 
     }
     
     for (int j=0;j<inboundWeights.size();j++) {

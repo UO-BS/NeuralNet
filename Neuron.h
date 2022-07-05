@@ -39,9 +39,9 @@ public:
     void printToConsole() const;
 
     //Learning methods
-    double findCostOfWeight(const Layer& previousLayer ,int weightIndex, double desiredValue) const;
-    double findCostOfPrevNeuron(const Layer& previousLayer, int neuronIndex, double desiredValue) const;
-    void adjustInboundWeights(const Layer& previousLayer, double desiredNeuronValue);
+    double findCostOfWeight(const Layer& previousLayer ,int weightIndex, double derivativeOfCostRespectNeuron) const;
+    double findCostOfPrevNeuron(const Layer& previousLayer, int neuronIndex, double derivativeOfCostRespectNeuron) const;
+    void adjustInboundWeights(const Layer& previousLayer, double derivativeOfCostRespectNeuron);
     double findError(double desiredValue) const;
 };
 
