@@ -9,8 +9,7 @@
 int main() {
 
     NeuralNetwork newNet{2, 1};
-    //newNet.addHiddenLayer(2);
-    //newNet.addHiddenLayer(4);
+    //newNet.addHiddenLayer(1);
     newNet.update();
     std::cout << "----------------------------------------------------------------------------";
     newNet.printToConsole();
@@ -24,21 +23,25 @@ int main() {
         std::vector<double> temp{x,y};
         newNet.setInputNeurons(temp);
         newNet.update();
-        newNet.train(std::vector<double> (1,(x*2 > y)?1.0:0.0));
-        //newNet.update();
-        //if (newNet.outputLayer.containedNeurons[0].findError((x*2 > y)?1.0:0.0) > 0.5) {
-            //std::cout << newNet.outputLayer.containedNeurons[0].findError((x*2 > y)?1.0:0.0) << " " << i <<"\n";
+        newNet.train(std::vector<double> (1,(x*2 > y)?1.0:-1.0));
+        newNet.update();
+        //if (newNet.outputLayer.containedNeurons[0].findError((x*2 > y)?1.0:-1.0) > 0.5) {
+            std::cout << newNet.outputLayer.containedNeurons[0].findError((x*2 > y)?1.0:-1.0) << " " << i <<"\n";
         //}
+        if (i%1000==0) {
+            newNet.printToConsole();
+            std::cout << "\n";
+       }
     }
 
-    std::vector<double> temp{3,5};
+    std::vector<double> temp{0.3,0.5};
     newNet.setInputNeurons(temp);
 
     newNet.update();
     std::cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
     newNet.printToConsole();
 
-    temp[1] = 7;
+    temp[1] = 0.7;
     newNet.setInputNeurons(temp);
 
     newNet.update();

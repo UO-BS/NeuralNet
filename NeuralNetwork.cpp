@@ -67,6 +67,7 @@ void NeuralNetwork::printToConsole() const
 void NeuralNetwork::train(std::vector<double> desiredValues)
 {
     //POTENTIAL PROBLEMS: update() or no update() between weight changes?
+    update();
 
     std::vector<double> derivativeOfCostRespectOutputNeurons(outputLayer.size());
     for (int i=0;i<outputLayer.size();i++) {

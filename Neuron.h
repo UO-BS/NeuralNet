@@ -19,8 +19,8 @@ private:
     static constexpr double bias = 1.0;
 
     //Math helper methods
-    double sigmoid(double input) const;
-    double sigmoidPrime(double input) const;
+    double activation(double input) const;
+    double activationPrime(double input) const;
 public:
     //Initialization/destruction methods
     Neuron();
