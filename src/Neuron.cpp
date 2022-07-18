@@ -52,7 +52,7 @@ void Neuron::printToConsole() const
     for (int i=0;i<inboundWeights.size()-1;i++) {
         std::cout << inboundWeights[i] << " ";
     }
-    std::cout << "\nBias (1.0) Weight: " << inboundWeights[inboundWeights.size()-1];
+    std::cout << "\nBias ("<<bias<<") Weight: " << inboundWeights[inboundWeights.size()-1];
     std::cout << "\n";
     
 }
@@ -115,7 +115,7 @@ void Neuron::adjustInboundWeights(const Layer& previousLayer, double derivativeO
     
     
     for (int j=0;j<inboundWeights.size();j++) {
-        neededWeightChanges[j] = findCostOfWeight(previousLayer, j, derivativeOfCostRespectNeuron)*1.0; 
+        neededWeightChanges[j] = findCostOfWeight(previousLayer, j, derivativeOfCostRespectNeuron)*learningRate; 
     }
     
     for (int j=0;j<inboundWeights.size();j++) {

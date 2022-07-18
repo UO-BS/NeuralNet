@@ -17,6 +17,7 @@ private:
     static std::uniform_real_distribution<> randomGenerator;
 
     static constexpr double bias = 1.0;
+    static constexpr double learningRate = 1.0;
 
     //Math helper methods
     double activation(double input) const;
