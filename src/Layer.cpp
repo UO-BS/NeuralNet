@@ -44,12 +44,8 @@ void Layer::printToConsole() const
     }
 }
 
-
 double Layer::findCostOfPrevNeuronForLayer(const Layer& previousLayer, int neuronIndex, std::vector<double> derivativeOfCostRespectNeuron) const
 {
-    //to backpropagate: find derivative of cost function with respect to each previous node
-    //Only Difference is now you sum the deriv for all neurons that are ahead of this neuron.
-    //SUM FOR ALL OUTPUT NODES: 2(desiredvalue - currentNeuronValue) * sigmoid'(lastNeuronValueUnsigmoid) * WeightLinkingTheNodes
     double totalCost{0.0};
     for (int i=0;i<containedNeurons.size();i++) {
         totalCost += containedNeurons[i].findCostOfPrevNeuron(previousLayer, neuronIndex , derivativeOfCostRespectNeuron[i]);

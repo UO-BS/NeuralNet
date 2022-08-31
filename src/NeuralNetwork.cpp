@@ -10,26 +10,28 @@ NeuralNetwork::~NeuralNetwork()
 
 void NeuralNetwork::addHiddenLayer(int layerSize)
 {
-    if (hiddenLayers.size() ==0) {
+    if (hiddenLayers.size() ==0) {  //This is the first hidden layer added
         Layer newLayer = Layer(inputLayer,layerSize);
         hiddenLayers.push_back(newLayer);
         outputLayer.reassignNeuronsPreviousLayer(newLayer);
-    } else {
+    } else {                        //There are already hidden layers in this network
         Layer newLayer = Layer(hiddenLayers[hiddenLayers.size()-1],layerSize);
         hiddenLayers.push_back(newLayer);
         outputLayer.reassignNeuronsPreviousLayer(newLayer);
     }
-    //SHOULD ADD UPDATE HERE!!!
+    update();
 }
 
 void NeuralNetwork::setInputNeurons(const std::vector<double>& values){
     if (values.size() != inputLayer.size()) {
-        return; //THIS SHOULD RETURN AN ERROR
+        //THIS SHOULD RETURN AN ERROR
+        return; 
     }
     for (int i=0;i<inputLayer.size();i++) {
         inputLayer.containedNeurons[i].neuronValue = values[i];
-    }    
+    }
 
+    update();
 }
 
 void NeuralNetwork::update()
@@ -56,49 +58,125 @@ std::vector<double> NeuralNetwork::getOutputValues(){
 
 void NeuralNetwork::printToConsole() const
 {
-    std::cout << "Neural Network: \n";
+    std::cout << "\nNeural Network: \n";
     inputLayer.printToConsole();
     for (int i=0;i<hiddenLayers.size();i++) {
         hiddenLayers[i].printToConsole();
     }
     outputLayer.printToConsole();
+    std::cout << "\n";
 }
 
-void NeuralNetwork::train(std::vector<double> desiredValues)
+void NeuralNetwork::train(const std::vector<double>& desiredValues)
 {
-    //TEMP CHANGES
+    //Finding the costs
+    std::vector<std::vector<double>> derivativeOfCostRespectNeuron = getNeuronCosts(desiredValues);
+
+    //adjusting weights
+    updateWeightsFromCost(derivativeOfCostRespectNeuron);
+    
+    update();
+    return;
+}
+
+void NeuralNetwork::updateWeightsFromCost(const std::vector<std::vector<double>>& cost)
+{
+    for (int i=0;i<hiddenLayers.size();i++) {
+        if (i==0) {
+            hiddenLayers[i].adjustContainedNeuronWeights(inputLayer, cost[i]);
+        } else {
+            hiddenLayers[i].adjustContainedNeuronWeights(hiddenLayers[i-1], cost[i]);
+        }
+    }
+    if (hiddenLayers.size() == 0) {
+        outputLayer.adjustContainedNeuronWeights(inputLayer, cost[0]);
+    } else {
+        outputLayer.adjustContainedNeuronWeights(hiddenLayers[hiddenLayers.size()-1], cost[cost.size()-1]);
+    }
+}
+
+std::vector<std::vector<double>> NeuralNetwork::getNeuronCosts(const std::vector<double>& desiredValues) const
+{
+    //Vector of vectors to hold neuron cost partial derivatives ([layer][neuron])
     std::vector<std::vector<double>> derivativeOfCostRespectNeuron(hiddenLayers.size()+1);
     for (int i=0;i<hiddenLayers.size();i++) {
         derivativeOfCostRespectNeuron[i].resize(hiddenLayers[i].size());
     }
     derivativeOfCostRespectNeuron[hiddenLayers.size()].resize(outputLayer.size());
 
-    //Finds cost of outputLayer
+    //Finds cost of each neuron in outputLayer
     for (int i=0;i<outputLayer.size();i++) {
-        derivativeOfCostRespectNeuron[hiddenLayers.size()][i] = 2*(desiredValues[i] - outputLayer.containedNeurons[i].neuronValue);
+        derivativeOfCostRespectNeuron[hiddenLayers.size()][i] = outputLayer.containedNeurons[i].findErrorPrime(desiredValues[i]);
     }
 
-    //Finds cost of hidden layers
-    for (int i=hiddenLayers.size()-1;i>=0;i--) {
-        for (int k=0;k<hiddenLayers[i].size();k++) {
-            derivativeOfCostRespectNeuron[i][k] = outputLayer.findCostOfPrevNeuronForLayer(hiddenLayers[i],k,derivativeOfCostRespectNeuron[i+1]);
+    //Find cost of last hidden layer (the one that leads into the output) if it exists
+    if (hiddenLayers.size()!=0) {
+        for (int n=0;n<hiddenLayers[hiddenLayers.size()-1].size();n++) {
+            derivativeOfCostRespectNeuron[hiddenLayers.size()-1][n] = outputLayer.findCostOfPrevNeuronForLayer(hiddenLayers[hiddenLayers.size()-1],n,derivativeOfCostRespectNeuron[hiddenLayers.size()]);
         }
-    }
-
-    //adjusting weights
-    for (int i=0;i<hiddenLayers.size();i++) {
-        if (i==0) {
-            hiddenLayers[i].adjustContainedNeuronWeights(inputLayer, derivativeOfCostRespectNeuron[i]);
-        } else {
-            hiddenLayers[i].adjustContainedNeuronWeights(hiddenLayers[i-1], derivativeOfCostRespectNeuron[i]);
-        }
-    }
-    if (hiddenLayers.size() == 0) {
-        outputLayer.adjustContainedNeuronWeights(inputLayer, derivativeOfCostRespectNeuron[0]);
-    } else {
-        outputLayer.adjustContainedNeuronWeights(hiddenLayers[hiddenLayers.size()-1], derivativeOfCostRespectNeuron[derivativeOfCostRespectNeuron.size()-1]);
     }
     
+    //Finds cost of each neuron in hidden layers (excluding the last) if they exist
+    for (int l=hiddenLayers.size()-2;l>=0;l--) {
+        for (int n=0;n<hiddenLayers[l].size();n++) {
+            derivativeOfCostRespectNeuron[l][n] = hiddenLayers[l+1].findCostOfPrevNeuronForLayer(hiddenLayers[l],n,derivativeOfCostRespectNeuron[l+1]);
+        }
+    }
+
+    return derivativeOfCostRespectNeuron;
+}
+
+void NeuralNetwork::trainFromInput(const std::vector<double>& inputs, const std::vector<double>& desiredValues)
+{
+    if (inputs.size() == 0) {
+        //SHOULD THROW AN ERROR
+        std::cout << "trainFromInput Error inputs.size() == 0";
+        return;
+    }
+
+    setInputNeurons(inputs);
+    train(desiredValues);
+}
+
+void NeuralNetwork::trainFromInputSet(const std::vector<std::vector<double>>& inputs, const std::vector<std::vector<double>>& desiredValues)
+{
+    if (inputs.size() != desiredValues.size()) {
+        //SHOULD THROW AN ERROR
+        std::cout << "trainFromInputSet Error inputs.size() != desiredValues.size()";
+        return;
+    }
+    if (inputs.size() == 0) {
+        //SHOULD THROW AN ERROR
+        std::cout << "trainFromInputSet Error inputs.size() == 0";
+        return;
+    }
+
+    int numberOfSets = inputs.size(); //Number of training sets
+
+    //Vector to hold average of the cost partial derivatives on each neuron
+    std::vector<std::vector<double>> averageNeuronCosts(hiddenLayers.size()+1);
+    for (int i=0;i<hiddenLayers.size();i++) {
+        averageNeuronCosts[i].resize(hiddenLayers[i].size());
+    }
+    averageNeuronCosts[hiddenLayers.size()].resize(outputLayer.size());
+
+    //adding all the costs
+    for (int i=0;i<numberOfSets;i++) {
+        setInputNeurons(inputs[i]);
+        std::vector<std::vector<double>> tempNeuronCosts = getNeuronCosts(desiredValues[i]);
+        for (int l=0;l<tempNeuronCosts.size();l++) {
+            for (int n=0;n<tempNeuronCosts[l].size();n++) {
+                averageNeuronCosts[l][n] += tempNeuronCosts[l][n];
+            }
+        }
+    }
+    //averaging the costs
+    for (int l=0;l<averageNeuronCosts.size();l++) {
+        for (int n=0;n<averageNeuronCosts[l].size();n++) {
+            averageNeuronCosts[l][n] /= static_cast<double>(numberOfSets);
+        }
+    }
+
+    updateWeightsFromCost(averageNeuronCosts);
     update();
-    return;
 }

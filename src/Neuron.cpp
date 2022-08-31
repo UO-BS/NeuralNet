@@ -3,6 +3,7 @@
 #include <math.h>
 #include <iostream>
 
+//Randomization variables
 std::random_device Neuron::rd;
 std::seed_seq Neuron::seed{rd(),rd(),rd()};
 std::mt19937 Neuron::mt{seed};
@@ -60,19 +61,20 @@ void Neuron::printToConsole() const
 double Neuron::findCostOfWeight(const Layer& previousLayer, int weightIndex, double derivativeOfCostRespectNeuron) const
 {
     //derivative of Cost Function of 1 output with respect to 1 of the Weights
-    //2(desiredvalue - currentNeuronValue) * activation'(lastNeuronValueWeightedUnactivation) * lastNeuronValue
+    //Formula: dCost/dActivatedValue * dActivatedValue/dWeightedValue * dWeightedValue/dPrevNeuronValue
 
+    //dActivatedValue/dWeightedValue
     double weightedValue{};
     for (int i=0;i<previousLayer.size();i++) {
         weightedValue += previousLayer.containedNeurons[i].neuronValue*inboundWeights[i];
     }
     weightedValue += bias*inboundWeights[inboundWeights.size()-1];
     double dactivationdLastWeightedValue = -activationPrime(weightedValue);
-    
+    //dWeightedValue/dPrevNeuronValue
     double dLastWeightedValuedLastValue{};
-    if (weightIndex != inboundWeights.size()-1) {
+    if (weightIndex != inboundWeights.size()-1) {   
         dLastWeightedValuedLastValue = previousLayer.containedNeurons[weightIndex].neuronValue;
-    } else {
+    } else {    //The weight we are changing is the bias's weight
         dLastWeightedValuedLastValue = bias;
     }
 
@@ -82,25 +84,29 @@ double Neuron::findCostOfWeight(const Layer& previousLayer, int weightIndex, dou
 double Neuron::findCostOfPrevNeuron(const Layer& previousLayer, int neuronIndex, double derivativeOfCostRespectNeuron) const
 {
     //derivative of Cost Function of 1 output with respect to 1 of the Neurons (previous node)
-    //2(desiredvalue - currentNeuronValue) * activation'(lastNeuronValueWeightedUnactivation) * WeightLinkingTheNodes
+    //Formula: dCost/dActivatedValue * dActivatedValue/dWeightedValue * dWeightedValue/dInboungWeight
+    
+    //dActivatedValue/dWeightedValue
     double weightedValue{};
     for (int i=0;i<previousLayer.size();i++) {
         weightedValue += previousLayer.containedNeurons[i].neuronValue*inboundWeights[i];
     }
     weightedValue += bias*inboundWeights[inboundWeights.size()-1];
     double dactivationdLastWeightedValue = -activationPrime(weightedValue);
-
+    //dWeightedValue/dInboungWeight
     double dLastWeightedValuedLastWeight = inboundWeights[neuronIndex];
 
     return derivativeOfCostRespectNeuron * dactivationdLastWeightedValue * dLastWeightedValuedLastWeight;
 }
 
+//Neuron activation function
 double Neuron::activation(double input) const
 {
     return ((exp(input)-exp(-input))/(exp(input)+exp(-input))); // TANH
     //return (1.0 / (1.0 + exp(-input)));   SIGMOID
 }
 
+//Derivative of the neuron activation function (for backpropagation)
 double Neuron::activationPrime(double input) const
 {
     double activationTemp = activation(input);
@@ -108,16 +114,17 @@ double Neuron::activationPrime(double input) const
     //return (activationTemp*(1-activationTemp)); SIGMOID PRIME
 }
 
-
 void Neuron::adjustInboundWeights(const Layer& previousLayer, double derivativeOfCostRespectNeuron) {
+    //Vector to hold the required weight changes
     std::vector<double> neededWeightChanges(inboundWeights.size());
+    
     //Changing a weight will change the cost function for other weights. The calculation must be seperated from the changes
     
-    
+    //Determining how much the weights should change
     for (int j=0;j<inboundWeights.size();j++) {
         neededWeightChanges[j] = findCostOfWeight(previousLayer, j, derivativeOfCostRespectNeuron)*learningRate; 
     }
-    
+    //Changing the weights
     for (int j=0;j<inboundWeights.size();j++) {
         inboundWeights[j] -= neededWeightChanges[j]; 
     }
@@ -126,6 +133,13 @@ void Neuron::adjustInboundWeights(const Layer& previousLayer, double derivativeO
 
 double Neuron::findError(double desiredValue) const 
 {
+    //mean squared error
     double temp = desiredValue - neuronValue;
     return (temp) * (temp);
+}
+
+double Neuron::findErrorPrime(double desiredValue) const 
+{
+    //mean squared error
+    return 2*(desiredValue - neuronValue);
 }
