@@ -69,7 +69,7 @@ double Neuron::findCostOfWeight(const Layer& previousLayer, int weightIndex, dou
         weightedValue += previousLayer.containedNeurons[i].neuronValue*inboundWeights[i];
     }
     weightedValue += bias*inboundWeights[inboundWeights.size()-1];
-    double dactivationdLastWeightedValue = -activationPrime(weightedValue);
+    double dactivationdLastWeightedValue = activationPrime(weightedValue);
     //dWeightedValue/dPrevNeuronValue
     double dLastWeightedValuedLastValue{};
     if (weightIndex != inboundWeights.size()-1) {   
@@ -92,7 +92,7 @@ double Neuron::findCostOfPrevNeuron(const Layer& previousLayer, int neuronIndex,
         weightedValue += previousLayer.containedNeurons[i].neuronValue*inboundWeights[i];
     }
     weightedValue += bias*inboundWeights[inboundWeights.size()-1];
-    double dactivationdLastWeightedValue = -activationPrime(weightedValue);
+    double dactivationdLastWeightedValue = activationPrime(weightedValue);
     //dWeightedValue/dInboungWeight
     double dLastWeightedValuedLastWeight = inboundWeights[neuronIndex];
 
@@ -103,7 +103,7 @@ double Neuron::findCostOfPrevNeuron(const Layer& previousLayer, int neuronIndex,
 double Neuron::activation(double input) const
 {
     return ((exp(input)-exp(-input))/(exp(input)+exp(-input))); // TANH
-    //return (1.0 / (1.0 + exp(-input)));   SIGMOID
+    //return (1.0 / (1.0 + exp(-input)));   //SIGMOID
 }
 
 //Derivative of the neuron activation function (for backpropagation)
@@ -111,7 +111,7 @@ double Neuron::activationPrime(double input) const
 {
     double activationTemp = activation(input);
     return (1-activationTemp*activationTemp); //TANH PRIME
-    //return (activationTemp*(1-activationTemp)); SIGMOID PRIME
+    //return (activationTemp*(1-activationTemp)); //SIGMOID PRIME
 }
 
 void Neuron::adjustInboundWeights(const Layer& previousLayer, double derivativeOfCostRespectNeuron) {
@@ -126,7 +126,8 @@ void Neuron::adjustInboundWeights(const Layer& previousLayer, double derivativeO
     }
     //Changing the weights
     for (int j=0;j<inboundWeights.size();j++) {
-        inboundWeights[j] -= neededWeightChanges[j]; 
+        //Note: i am doing += here and not -= because the derivative of the cost function is negative (but i kept it positive when calculating it)
+        inboundWeights[j] += neededWeightChanges[j]; 
     }
 
 }

@@ -6,7 +6,7 @@
 //This is for testing purposes only
 
 int main() {
-    /*
+    
     //Perceptron Testing ----------------------------------------------------------------------------------------------
     NeuralNetwork newNet{2, 1};
     newNet.addHiddenLayer(2);
@@ -17,55 +17,8 @@ int main() {
     //Testing
     std::default_random_engine generator;
     std::uniform_real_distribution<double> distribution(-1,1);
-    for (int i=0;i<5000;i++) {
-        double x = distribution(generator);
-        double y = distribution(generator);
-        std::vector<double> temp{x,y};
-        newNet.setInputNeurons(temp);
-        newNet.update();
-        newNet.train(std::vector<double> (1,(x*x > y)?1.0:-1.0));
-        newNet.update();
-        std::cout << newNet.getOutputValues()[0] <<" : "<<newNet.outputLayer.containedNeurons[0].inboundWeights[0]<< "\n";
-        //if (newNet.outputLayer.containedNeurons[0].findError((x*2 > y)?1.0:-1.0) > 0.5) {
-            //std::cout << newNet.outputLayer.containedNeurons[0].findError((x*2 > y)?1.0:-1.0) << " " << i <<"\n";
-        //}
-    }
-
-    std::vector<double> temp{0.3,0.5};
-    newNet.setInputNeurons(temp);
-
-    newNet.update();
-    std::cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
-    newNet.printToConsole();
-
-    temp[1] = 0.7;
-    newNet.setInputNeurons(temp);
-
-    newNet.update();
-    std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
-    newNet.printToConsole();
-    */
-
-    
-    //Gate testing ------------------------------------------------------------------------------------------------------
-    NeuralNetwork xorNet{2,1};
-    //xorNet.addHiddenLayer(2);
-    xorNet.printToConsole();
-    
-    //Testing
-    
-    std::mt19937 generator(std::random_device{}());
-    std::uniform_int_distribution<> distribution(0,1);
     for (int i=0;i<50000;i++) {
-        /*
-        double x = distribution(generator);
-        double y = distribution(generator);
-        //xorNet.setInputNeurons(temp);
-        xorNet.update();
-        xorNet.trainFromInput({x,y},std::vector<double> (1,(!!x && !!y)?1.0:-1.0));
-        xorNet.update();
-        */
-        
+
         int batchSize =10;
         std::vector<std::vector<double>> inputs;
         std::vector<std::vector<double>> outputs;
@@ -73,12 +26,49 @@ int main() {
             double x = distribution(generator);
             double y = distribution(generator);
             inputs.push_back({x,y});
-            outputs.push_back({(!!x && !!y)?1.0:-1.0});
+            outputs.push_back({(x*x > y)?1.0:-1.0});
+        }
+        newNet.trainFromInputSet(inputs,outputs);
+        std::cout << newNet.averageErrorOnSet(inputs,outputs) << "\n";
+
+    }
+
+    std::vector<double> temp{0.5,0.20};
+    newNet.setInputNeurons(temp);
+
+    newNet.update();
+    std::cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
+    newNet.printToConsole();
+
+    temp[1] = 0.30;
+    newNet.setInputNeurons(temp);
+
+    newNet.update();
+    std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
+    newNet.printToConsole();
+    
+
+    /*
+    //Gate testing ------------------------------------------------------------------------------------------------------
+    NeuralNetwork xorNet{2,1};
+    xorNet.addHiddenLayer(2);
+    xorNet.printToConsole();
+        
+    std::mt19937 generator(std::random_device{}());
+    std::uniform_int_distribution<> distribution(0,1);
+    for (int i=0;i<50000;i++) {
+        int batchSize =10;
+        std::vector<std::vector<double>> inputs;
+        std::vector<std::vector<double>> outputs;
+        for (int batch=0;batch<batchSize;batch++) {
+            double x = distribution(generator);
+            double y = distribution(generator);
+            inputs.push_back({x,y});
+            outputs.push_back({(!!x != !!y)?1.0:-1.0});
         }
         xorNet.trainFromInputSet(inputs,outputs);
-        
+        std::cout << xorNet.averageErrorOnSet(inputs,outputs) << "\n";
     }
-    
     
 
     std::vector<double> temp{1.0,0.0};
@@ -107,7 +97,7 @@ int main() {
     xorNet.update();
     std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
     xorNet.printToConsole();
-    
+    */
     
 
     std::cout << "\nPress Enter to exit the program ";

@@ -39,9 +39,11 @@ public:
     //Trains the current network with a set of desired values (input neurons must be set beforehand)
     void train(const std::vector<double>& desiredValues);
     //Trains the network using a training example
-    void trainFromInput(const std::vector<double>& values, const std::vector<double>& desiredValues);
+    void trainFromInput(const std::vector<double>& inputs, const std::vector<double>& desiredValues);
     //Trains the network using a training set
-    void trainFromInputSet(const std::vector<std::vector<double>>& values, const std::vector<std::vector<double>>& desiredValues);
+    void trainFromInputSet(const std::vector<std::vector<double>>& inputs, const std::vector<std::vector<double>>& desiredValues);
+
+    double averageErrorOnSet(const std::vector<std::vector<double>>& inputs, const std::vector<std::vector<double>>& desiredValues);
 };
 
 #endif

@@ -180,3 +180,26 @@ void NeuralNetwork::trainFromInputSet(const std::vector<std::vector<double>>& in
     updateWeightsFromCost(averageNeuronCosts);
     update();
 }
+
+double NeuralNetwork::averageErrorOnSet(const std::vector<std::vector<double>>& inputs, const std::vector<std::vector<double>>& desiredValues)
+{
+    if (inputs.size() != desiredValues.size()) {
+        //SHOULD THROW AN ERROR
+        std::cout << "trainFromInputSet Error inputs.size() != desiredValues.size()";
+        return -1.0;
+    }
+    if (inputs.size() == 0) {
+        //SHOULD THROW AN ERROR
+        std::cout << "trainFromInputSet Error inputs.size() == 0";
+        return -1.0;
+    }
+
+    double error;
+    for (int s=0;s<inputs.size();s++) {
+        setInputNeurons(inputs[s]);
+        for (int n=0;n<desiredValues[s].size();n++) {
+            error += outputLayer.containedNeurons[n].findError(desiredValues[s][n]);
+        }
+    }
+    return (error/inputs.size());
+}

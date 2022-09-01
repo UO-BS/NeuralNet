@@ -18,7 +18,7 @@ private:
 
     //Constants
     static constexpr double bias = 1.0;
-    static constexpr double learningRate = 0.5;
+    static constexpr double learningRate = 0.10;
 
     //Math helper methods
     double activation(double input) const;
