@@ -126,12 +126,13 @@ void Neuron::adjustInboundWeights(const Layer& previousLayer, double derivativeO
     
     //Determining how much the weights should change
     for (int j=0;j<inboundWeights.size();j++) {
-        neededWeightChanges[j] = findCostOfWeight(previousLayer, j, derivativeOfCostRespectNeuron)*learningRate; 
+        neededWeightChanges[j] = (findCostOfWeight(previousLayer, j, derivativeOfCostRespectNeuron)+(momentumFactor*lastWeightChange[j]))*learningRate; 
+        
     }
     //Changing the weights
     for (int j=0;j<inboundWeights.size();j++) {
         //Note: i am doing += here and not -= because the derivative of the cost function is negative (but i kept it positive when calculating it)
-        double changeValue = neededWeightChanges[j] + momentumFactor*lastWeightChange[j];
+        double changeValue = neededWeightChanges[j];
         inboundWeights[j] +=  changeValue;
         lastWeightChange[j] = changeValue;
     }
