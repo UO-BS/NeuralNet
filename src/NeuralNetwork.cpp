@@ -2,7 +2,16 @@
 #include <math.h>
 #include <iostream>
 
-NeuralNetwork::NeuralNetwork(int inputLayerSize, int outputLayerSize) : inputLayer{inputLayerSize}, outputLayer{inputLayer, outputLayerSize}{}
+NeuralNetwork::NeuralNetwork(int inputLayerSize, int outputLayerSize, double learningRate, double momentumFactor) : 
+                                                                        inputLayer{inputLayerSize}, 
+                                                                        outputLayer{inputLayer, outputLayerSize},
+                                                                        learningRate{learningRate},
+                                                                        momentumFactor{momentumFactor}{}
+NeuralNetwork::NeuralNetwork(const NeuralNetwork& orig) :   inputLayer{orig.inputLayer}, 
+                                                            outputLayer{orig.outputLayer}, 
+                                                            hiddenLayers{orig.hiddenLayers},
+                                                            learningRate{orig.learningRate},
+                                                            momentumFactor{orig.momentumFactor} {}
 NeuralNetwork::~NeuralNetwork()
 {
 
@@ -83,15 +92,15 @@ void NeuralNetwork::updateWeightsFromCost(const std::vector<std::vector<double>>
 {
     for (int i=0;i<hiddenLayers.size();i++) {
         if (i==0) {
-            hiddenLayers[i].adjustContainedNeuronWeights(inputLayer, cost[i]);
+            hiddenLayers[i].adjustContainedNeuronWeights(inputLayer, cost[i], learningRate, momentumFactor);
         } else {
-            hiddenLayers[i].adjustContainedNeuronWeights(hiddenLayers[i-1], cost[i]);
+            hiddenLayers[i].adjustContainedNeuronWeights(hiddenLayers[i-1], cost[i], learningRate, momentumFactor);
         }
     }
     if (hiddenLayers.size() == 0) {
-        outputLayer.adjustContainedNeuronWeights(inputLayer, cost[0]);
+        outputLayer.adjustContainedNeuronWeights(inputLayer, cost[0], learningRate, momentumFactor);
     } else {
-        outputLayer.adjustContainedNeuronWeights(hiddenLayers[hiddenLayers.size()-1], cost[cost.size()-1]);
+        outputLayer.adjustContainedNeuronWeights(hiddenLayers[hiddenLayers.size()-1], cost[cost.size()-1], learningRate, momentumFactor);
     }
 }
 

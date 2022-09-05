@@ -14,8 +14,10 @@ Neuron::Neuron(int numberOfWeights) : isInputNeuron{(numberOfWeights==0)?true : 
     for (int i=0;i<inboundWeights.size();i++) {
         inboundWeights[i] = randomGenerator(mt);
     }
+
+    lastWeightChange.resize(inboundWeights.size(),0);
 }
-Neuron::Neuron(const Neuron& orig) : isInputNeuron{orig.isInputNeuron}, inboundWeights{orig.inboundWeights}, neuronValue{orig.neuronValue}{}
+Neuron::Neuron(const Neuron& orig) : isInputNeuron{orig.isInputNeuron}, inboundWeights{orig.inboundWeights}, neuronValue{orig.neuronValue}, lastWeightChange{orig.lastWeightChange}{}
 Neuron::~Neuron(){}
 
 void Neuron::reinitializeWeights(int weightCount)
@@ -27,6 +29,8 @@ void Neuron::reinitializeWeights(int weightCount)
     for (int i=0;i<inboundWeights.size();i++) {
         inboundWeights[i] = randomGenerator(mt);
     }
+
+    lastWeightChange.resize(inboundWeights.size(),0);
 }
 
 void Neuron::update(const Layer& previousLayer)
@@ -114,7 +118,7 @@ double Neuron::activationPrime(double input) const
     //return (activationTemp*(1-activationTemp)); //SIGMOID PRIME
 }
 
-void Neuron::adjustInboundWeights(const Layer& previousLayer, double derivativeOfCostRespectNeuron) {
+void Neuron::adjustInboundWeights(const Layer& previousLayer, double derivativeOfCostRespectNeuron, double learningRate, double momentumFactor) {
     //Vector to hold the required weight changes
     std::vector<double> neededWeightChanges(inboundWeights.size());
     
@@ -127,7 +131,9 @@ void Neuron::adjustInboundWeights(const Layer& previousLayer, double derivativeO
     //Changing the weights
     for (int j=0;j<inboundWeights.size();j++) {
         //Note: i am doing += here and not -= because the derivative of the cost function is negative (but i kept it positive when calculating it)
-        inboundWeights[j] += neededWeightChanges[j]; 
+        double changeValue = neededWeightChanges[j] + momentumFactor*lastWeightChange[j];
+        inboundWeights[j] +=  changeValue;
+        lastWeightChange[j] = changeValue;
     }
 
 }

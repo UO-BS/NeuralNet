@@ -8,8 +8,8 @@
 int main() {
     
     //Perceptron Testing ----------------------------------------------------------------------------------------------
-    NeuralNetwork newNet{2, 1};
-    newNet.addHiddenLayer(2);
+    NeuralNetwork newNet{2, 1,};
+    newNet.addHiddenLayer(3);
     newNet.update();
     std::cout << "--------------------------------------------------------------------";
     newNet.printToConsole();
@@ -17,7 +17,7 @@ int main() {
     //Testing
     std::default_random_engine generator;
     std::uniform_real_distribution<double> distribution(-1,1);
-    for (int i=0;i<50000;i++) {
+    for (int i=0;i<10000;i++) {
 
         int batchSize =10;
         std::vector<std::vector<double>> inputs;
@@ -26,21 +26,21 @@ int main() {
             double x = distribution(generator);
             double y = distribution(generator);
             inputs.push_back({x,y});
-            outputs.push_back({(x*x > y)?1.0:-1.0});
+            outputs.push_back({(3*x > y)?1.0:-1.0});
         }
         newNet.trainFromInputSet(inputs,outputs);
-        std::cout << newNet.averageErrorOnSet(inputs,outputs) << "\n";
+        //std::cout << newNet.averageErrorOnSet(inputs,outputs) << "\n";
 
     }
 
-    std::vector<double> temp{0.5,0.20};
+    std::vector<double> temp{0.2,0.7};
     newNet.setInputNeurons(temp);
 
     newNet.update();
     std::cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
     newNet.printToConsole();
 
-    temp[1] = 0.30;
+    temp[1] = 0.50;
     newNet.setInputNeurons(temp);
 
     newNet.update();

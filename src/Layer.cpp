@@ -5,6 +5,8 @@
 
 Layer::Layer(int layerSize) : containedNeurons(layerSize){}
 
+Layer::Layer(const Layer& orig) : containedNeurons{orig.containedNeurons} {}
+
 Layer::Layer(const Layer& previousLayer, int layerSize) : containedNeurons(layerSize)
 {
     //using an allocator with std::vector calls copy constructor during initilization which does not randomize neuron weights
@@ -12,8 +14,6 @@ Layer::Layer(const Layer& previousLayer, int layerSize) : containedNeurons(layer
         containedNeurons[i].reinitializeWeights(previousLayer.size());
     }
 }
-
-Layer::Layer(std::vector<Neuron> neurons) : containedNeurons{neurons}{}
 
 Layer::~Layer()
 {
@@ -54,8 +54,8 @@ double Layer::findCostOfPrevNeuronForLayer(const Layer& previousLayer, int neuro
 }
 
 
-void Layer::adjustContainedNeuronWeights(const Layer& previousLayer, std::vector<double> derivativeOfCostRespectNeurons) {
+void Layer::adjustContainedNeuronWeights(const Layer& previousLayer, std::vector<double> derivativeOfCostRespectNeurons, double learningRate, double momentumFactor) {
     for (int i=0;i<containedNeurons.size();i++) {
-        containedNeurons[i].adjustInboundWeights(previousLayer, derivativeOfCostRespectNeurons[i]);
+        containedNeurons[i].adjustInboundWeights(previousLayer, derivativeOfCostRespectNeurons[i], learningRate, momentumFactor);
     }
 }
