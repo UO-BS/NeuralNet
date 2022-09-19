@@ -2,7 +2,7 @@ CXX=g++
 CXXFLAGS= -g -Wall
 
 ifeq ($(OS), Windows_NT)
-	RM=del
+	RM=cmd /C del
 	ReplaceSeperator = $(subst /,\,$1)
 else
 	ifeq ($(shell uname), Linux)
