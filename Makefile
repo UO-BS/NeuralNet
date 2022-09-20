@@ -20,7 +20,7 @@ OBJS=$(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRCS))
 all: $(OBJS) ;
 
 clean:
-	$(RM) $(call ReplaceSeperator, $(OBJS))
+	$(RM) $(call ReplaceSeperator,$(OBJS))
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
